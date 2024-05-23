@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Donation Platform</h1>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Add Donation</h2>
+            </div>
+            <div class="card-body">
+                <form id="donationForm">
+                    <div class="form-group">
+                        <label for="donor">Dirección del donante:</label>
+                        <input type="text" id="donor" name="donor" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="beneficiary">Dirección Beneficiaria:</label>
+                        <input type="text" id="beneficiary" name="beneficiary" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Cantidad:</label>
+                        <input type="number" id="amount" name="amount" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Donar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button id="mineButton" class="btn btn-success">Validar donacion</button>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Blockchain</h2>
+            </div>
+            <div class="card-body">
+                <pre id="chain"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#donationForm').submit(function(e) {
+                e.preventDefault();
+                const donor = $('#donor').val();
+                const beneficiary = $('#beneficiary').val();
+                const amount = $('#amount').val();
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/transactions/new',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ donor, beneficiary, amount }),
+                    success: function(data) {
+                        alert(data.message);
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#mineButton').click(function() {
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/mine',
+                    type: 'GET',
+                    success: function(data) {
+                        alert(data.message);
+                        fetchChain();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            function fetchChain() {
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/chain',
+                    type: 'GET',
+                    success: function(data) {
+                        $('#chain').text(JSON.stringify(data, null, 2));
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            }
+
+            fetchChain();
+        });
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
