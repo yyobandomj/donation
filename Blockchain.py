@@ -7,7 +7,14 @@ class Blockchain:
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-        self.create_block(previous_hash='1', proof=100)  # Génesis block
+       
+        self.ongs = []
+        self.donation_limit = None
+        self.total_donations = 0.0
+
+        genesis_block = self.create_block(proof=100, previous_hash='1')
+        genesis_block['hash'] = self.hash(genesis_block)
+        self.chain[-1] = genesis_block
 
     def create_block(self, proof, previous_hash=None):
         block = {
@@ -16,19 +23,50 @@ class Blockchain:
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
+            'hash': ''  # Este campo se actualizará después
         }
         self.current_transactions = []
         self.chain.append(block)
         return block
 
     def add_transaction(self, donor, beneficiary, amount):
+        amount = float(amount)
+        if self.donation_limit is None:
+            return False, f"Se debe fijar una cantidad limite de donaciones"
+        if self.donation_limit is not None and float(self.total_donations) + amount > float(self.donation_limit):
+            return False, f"Se ha alcanzado el limite de donaciones  {self.donation_limit}"
+        
         self.current_transactions.append({
             'donor': donor,
             'beneficiary': beneficiary,
             'amount': amount,
         })
-        return self.last_block['index'] + 1
+        self.total_donations += amount
+        return True, self.last_block['index'] + 1
+    
 
+    def add_ong(self, name, address):
+        self.ongs.append({
+            'name': name,
+            'address': address,
+        })
+
+    def distribute_funds(self):
+        if self.total_donations == 0:
+            return False, f'No hay fondos suficientes para ser distribuidos'
+        if not self.ongs :
+            return False, f'No hay ONG para distribuir las donaciones'
+
+        amount_per_ong = self.total_donations / len(self.ongs)
+        for ong in self.ongs:
+            self.add_transaction('Platform', ong['address'], amount_per_ong)
+        
+        self.total_donations = 0
+        return True
+
+    def set_donation_limit(self, limit):
+        self.donation_limit = limit
+        
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
@@ -49,3 +87,5 @@ class Blockchain:
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
+    
+    

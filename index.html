@@ -6,40 +6,101 @@
     <title>Donation Platform</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet">
+    
+    <style>
+        .details-control {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Donation Platform</h1>
-
-        <div class="card mt-4">
-            <div class="card-header">
-                <h2>Add Donation</h2>
-            </div>
-            <div class="card-body">
-                <form id="donationForm">
-                    <div class="form-group">
-                        <label for="donor">Dirección del donante:</label>
-                        <input type="text" id="donor" name="donor" class="form-control" required>
+        <h1 class="text-center">Plataforma de donación</h1>
+        <div class="row">
+            <div class="col-md-4"> 
+                <form id="limitForm" class="form-inline justify-content-center">
+                    <div class="form-group mb-2">
+                        <input type="number" id="limit" name="limit" class="form-control" required placeholder="Limite de donaciones">
                     </div>
-                    <div class="form-group">
-                        <label for="beneficiary">Dirección Beneficiaria:</label>
-                        <input type="text" id="beneficiary" name="beneficiary" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="amount">Cantidad:</label>
-                        <input type="number" id="amount" name="amount" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Donar</button>
+                    <button type="submit" class="btn btn-primary mb-2 ml-2">Agregar limite</button>
                 </form>
             </div>
+            <div class="col-md-4">
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button id="mineButton" class="btn btn-success">Validar donacion</button>
+                    <button id="distributeButton" class="btn btn-success">Distribuir fondos</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="alert alert-success" role="alert">
+                    <strong>Cantidad Recaudada: </strong><span id="total_donations">$0</span><br>
+                    <strong>Límite de Donaciones: </strong><span id="donation_limit">$0</span>
+                </div>
+            </div>
         </div>
+        <div class="row">  
+            <div class="col-md-4">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>Agregar ONG</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="ongForm">
+                            <div class="form-group">
+                                <label for="ongName">Nombre:</label>
+                                <input type="text" id="ongName" name="ongName" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ongAddress">Direccion</label>
+                                <input type="text" id="ongAddress" name="ongAddress" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar ONG</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-        <div class="text-center mt-4">
-            <button id="mineButton" class="btn btn-success">Validar donacion</button>
+            <div class="col-md-4">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>Lista de ONG</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul id="ongList" class="list-group">
+                            <!-- ONG items will be appended here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">  
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>Agregar donacion</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="donationForm">
+                            <div class="form-group">
+                                <label for="donor">Nombre del donante:</label>
+                                <input type="text" id="donor" name="donor" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="beneficiary">Nombre del beneficiario</label>
+                                <input type="text" id="beneficiary" name="beneficiary" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Cantidad:</label>
+                                <input type="number" id="amount" name="amount" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Donar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+           
         </div>
-
+    
         <div class="card mt-4">
             <div class="card-header">
                 <h2>Blockchain</h2>
@@ -48,8 +109,26 @@
                 <pre id="chain"></pre>
             </div>
         </div>
-    </div>
 
+        <h1 class="mb-4">Blockchain Visualizer</h1>
+        <table id="blockchainTable" class="table table-striped table-bordered" style="width:100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Bloque #</th>
+                    <th>Hash</th>
+                    <th>Hash Anterior</th>
+                    <th>Prueba</th>
+                    <th>Marca de Tiempo</th>
+                </tr>
+            </thead>
+            <tbody id="blockchain"></tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#donationForm').submit(function(e) {
@@ -71,12 +150,64 @@
                 });
             });
 
+            $('#ongForm').submit(function(e) {
+                e.preventDefault();
+                const name = $('#ongName').val();
+                const address = $('#ongAddress').val();
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/ongs/new',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ name, address }),
+                    success: function(data) {
+                        alert(data.message);
+                        fetchOngs();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#limitForm').submit(function(e) {
+                e.preventDefault();
+                const limit = $('#limit').val();
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/set_limit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ limit }),
+                    success: function(data) {
+                        alert(data.message);
+                        getDonationInfo()
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#distributeButton').click(function() {
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/distribute',
+                    type: 'GET',
+                    success: function(data) {
+                        alert(data.message);
+                        fetchChain();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+
             $('#mineButton').click(function() {
                 $.ajax({
                     url: 'http://127.0.0.1:5000/mine',
                     type: 'GET',
                     success: function(data) {
                         alert(data.message);
+                        getDonationInfo()
                         fetchChain();
                     },
                     error: function(xhr, status, error) {
@@ -98,12 +229,121 @@
                 });
             }
 
+            function fetchOngs() {
+                $.ajax({
+                    url: 'http://127.0.0.1:5000/ongs',
+                    type: 'GET',
+                    success: function(data) {
+                        const ongs = data.ongs;
+                        const ongList = $('#ongList');
+                        ongList.empty();
+                        ongs.forEach(function(ong) {
+                            ongList.append(`<li class="list-group-item">${ong.name} - ${ong.address}</li>`);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            }
+
+                function getDonationInfo() {
+                    $.ajax({
+                        url: 'http://127.0.0.1:5000/donation_info',
+                        type: 'GET',
+                        success: function(data) {
+                            // Manejar la respuesta del servidor aquí
+                            $('#total_donations').html(`$${data.total_donations}`)
+                            $('#donation_limit').html(`$${data.donation_limit}`)
+                            console.log('Cantidad Recaudada:', data.total_donations);
+                            console.log('Límite de Donaciones:', data.donation_limit);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al obtener información de donación:', xhr.responseText);
+                        }
+                    });
+                }
+
+                function formatTransactions(transactions) {
+                    if (!transactions || transactions.length === 0) {
+                        return '<div>No se encontraron transacciones</div>';
+                    }
+                    var html = '<table class="table table-sm table-bordered">';
+                    html += '<thead class="thead-light"><tr><th>Donante</th><th>Beneficiario</th><th>Cantidad</th></tr></thead>';
+                    html += '<tbody>';
+                    transactions.forEach(function(transaction) {
+                        html += '<tr>';
+                        html += '<td>' + transaction.donor + '</td>';
+                        html += '<td>' + transaction.beneficiary + '</td>';
+                        html += '<td>$' + transaction.amount + '</td>';
+                        html += '</tr>';
+                    });
+                    html += '</tbody></table>';
+                    return html;
+                }
+
+                function fetchBlockchain() {
+                    $.ajax({
+                        url: 'http://127.0.0.1:5000/chain',
+                        type: 'GET',
+                        success: function(data) {
+                            var blockchain = data.chain;
+                            var blockchainTable = $('#blockchainTable').DataTable();
+                            blockchainTable.clear();
+
+                            blockchain.forEach(function(block) {
+                                var rowNode = blockchainTable.row.add([
+                                    '<button class="details-control btn btn-primary btn-sm">+</button>',
+                                    block.index,
+                                    block.hash,
+                                    block.previous_hash,
+                                    block.proof,
+                                    new Date(block.timestamp * 1000).toLocaleString()
+                                ]).draw(false).node();
+
+                                $(rowNode).data('transactions', block.transactions ? JSON.stringify(block.transactions) : '[]');
+                            });
+
+                            blockchainTable.draw();
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching blockchain:', xhr.responseText);
+                        }
+                    });
+                }  
+                
+                var blockchainTable = $('#blockchainTable').DataTable();
+
+                $('#blockchainTable tbody').on('click', 'button.details-control', function() {
+                    var tr = $(this).closest('tr');
+                    var row = blockchainTable.row(tr);
+
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        $(this).text('+');
+                    } else {
+                        var transactions = tr.data('transactions');
+                        try {
+                            transactions = JSON.parse(transactions);
+                            row.child(formatTransactions(transactions)).show();
+                            $(this).text('-');
+                        } catch (e) {
+                            console.error('Error parsing transactions:', e);
+                            row.child('<div>Error al cargar las transacciones</div>').show();
+                            $(this).text('-');
+                        }
+                    }
+                });
+
+            fetchBlockchain()
+            getDonationInfo()
             fetchChain();
+            fetchOngs();
         });
     </script>
 
     <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- jQuery -->
+   
 </body>
 </html>
