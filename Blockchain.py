@@ -2,12 +2,13 @@ import hashlib
 import json
 from time import time
 from flask import Flask, jsonify, request
+from uuid import uuid4
 
 class Blockchain:
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-       
+        self.nodes = set()
         self.ongs = []
         self.donation_limit = None
         self.total_donations = 0.0
@@ -66,7 +67,20 @@ class Blockchain:
 
     def set_donation_limit(self, limit):
         self.donation_limit = limit
-        
+
+    def validate_chain(self):
+        for i in range(1, len(self.chain)):
+            current_block = self.chain[i]
+            previous_block = self.chain[i - 1]
+
+            if current_block['previous_hash'] != self.hash(previous_block):
+                return False
+
+            if not self.valid_proof(previous_block['proof'], current_block['proof']):
+                return False
+
+        return True
+
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
